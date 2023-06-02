@@ -2,8 +2,6 @@ import React, { useRef, useState } from 'react';
 import { Dimensions, StyleSheet, Text, View, Button, PanResponder, UIManager, Platform } from 'react-native';
 import { Svg, Rect } from 'react-native-svg';
 
-const windowHeight = Dimensions.get('window').height;
-
 // Enable layout animation on Android
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -11,7 +9,42 @@ if (Platform.OS === 'android') {
   }
 }
 
+const DrawingBoxes = ({ drawingBoxes }) => {
+  const renderDrawing = () => {
+    return drawingBoxes.map((box, index) => {
+      const { position, size } = box;
+      if (!position || !size) {
+        return null;
+      }
+
+      const { x, y } = position;
+      const { width, height } = size;
+
+      if (x === null || y === null) {
+        return null;
+      }
+
+      const startX = Math.min(x, x + width);
+      const startY = Math.min(y, y + height);
+      const boxWidth = Math.abs(width);
+      const boxHeight = Math.abs(height);
+
+      return <Rect key={index} x={startX} y={startY} width={boxWidth} height={boxHeight} fill="none" stroke="blue" strokeWidth="2" />;
+    });
+  };
+
+  return (
+    <Svg style={styles.drawingContainer}>
+      {renderDrawing()}
+    </Svg>
+  );
+};
+
 export default function App() {
+  const { width, height } = Dimensions.get('window'); 
+
+  const redBoxRef = useRef(null);
+
   const [drawingBoxes, setDrawingBoxes] = useState([]);
   const [drawMode, setDrawMode] = useState('');
 
@@ -20,19 +53,32 @@ export default function App() {
   };
 
   const handlePanResponderMove = (event, gestureState) => {
-    const { locationX, locationY } = event.nativeEvent;
-    setDrawingBoxes(prevBoxes => {
-      const updatedBoxes = [...prevBoxes];
-      const lastIndex = updatedBoxes.length - 1;
-      const { position, size } = updatedBoxes[lastIndex];
-      const startX = position.x !== null ? position.x : locationX;
-      const startY = position.y !== null ? position.y : locationY;
-      const width = Math.abs(locationX - startX);
-      const height = Math.abs(locationY - startY);
-      updatedBoxes[lastIndex] = { position: { x: startX, y: startY }, size: { width, height } };
-      return updatedBoxes;
-    });
+  const { locationX, locationY } = event.nativeEvent;
+  const redBoxWidth = width / 2;
+  const redBoxHeight = height / 2;
+
+  setDrawingBoxes(prevBoxes => {
+    const updatedBoxes = [...prevBoxes];
+    const lastIndex = updatedBoxes.length - 1;
+    const { position, size } = updatedBoxes[lastIndex];
+    const startX = position.x !== null ? position.x : locationX;
+    const startY = position.y !== null ? position.y : locationY;
+    let width = Math.abs(locationX - startX);
+    let height = Math.abs(locationY - startY);
+
+    // Adjust width and height if they exceed the boundaries
+    if (startX + width > redBoxWidth) {
+      width = redBoxWidth - startX;
+    }
+    if (startY + height > redBoxHeight) {
+      height = redBoxHeight - startY;
+    }
+
+    updatedBoxes[lastIndex] = { position: { x: startX, y: startY }, size: { width, height } };
+    return updatedBoxes;
+  });
   };
+
 
   const switchDrawMode = (mode) => {
     setDrawMode(mode);
@@ -54,43 +100,23 @@ export default function App() {
     })
   ).current;
 
-const renderDrawing = () => {
-  return drawingBoxes.map((box, index) => {
-    const { position, size } = box;
-    if (!position || !size) {
-      return null;
-    }
-
-    const { x, y } = position;
-    const { width, height } = size;
-
-    if (x === null || y === null) {
-      return null;
-    }
-
-    const startX = Math.min(x, x + width);
-    const startY = Math.min(y, y + height);
-    const boxWidth = Math.abs(width);
-    const boxHeight = Math.abs(height);
-
-    return <Rect key={index} x={startX} y={startY} width={boxWidth} height={boxHeight} fill="none" stroke="blue" strokeWidth="2" />;
-  });
-};
-
-
   return (
     <View style={styles.container}>
-      <View style={[styles.box, { height: windowHeight / 2, width: '90%' }]} {...panResponder.panHandlers}>
+      <Text>
+        width: {`${redBoxRef.current?.offsetWidth}`} {width}
+      </Text>
+      <Text>
+        height: {`${redBoxRef.current?.offsetHeight}`} {height}
+      </Text>
+      <View ref={redBoxRef} style={[styles.box, {height: height / 2, width: width / 2}]} {...panResponder.panHandlers}>
         <Text>Image should be here</Text>
-        <Svg style={styles.drawingContainer}>
-          {renderDrawing()}
-        </Svg>
+        <DrawingBoxes drawingBoxes={drawingBoxes} />
       </View>
       <View style={styles.buttonContainer}>
         <Button title="Box" onPress={() => switchDrawMode('box')} disabled={drawMode === 'box'} />
         <Button title="Reset" onPress={clearDrawing} />
       </View>
-        <Text>{JSON.stringify(drawingBoxes)}</Text>
+      {/* <Text>{JSON.stringify(drawingBoxes)}</Text> */}
     </View>
   );
 }
@@ -101,7 +127,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'red',
     alignSelf: 'center',
-    marginBottom: 20,
   },
   container: {
     flex: 1,
