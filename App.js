@@ -12,13 +12,21 @@ if (Platform.OS === 'android') {
 }
 
 export default function App() {
-  const [drawingPath, setDrawingPath] = useState([]);
-  const [drawMode, setDrawMode] = useState('line');
+  const [drawingPaths, setDrawingPaths] = useState([]);
+  const [drawMode, setDrawMode] = useState('');
+
+  const handlePanResponderStart = () => {
+    setDrawingPaths(prevPaths => [...prevPaths, []]);
+  };
 
   const handlePanResponderMove = (event, gestureState) => {
     const { locationX, locationY } = event.nativeEvent;
     const point = { x: locationX, y: locationY };
-    setDrawingPath(prevPath => [...prevPath, point]);
+    setDrawingPaths(prevPaths => {
+      const updatedPaths = [...prevPaths];
+      updatedPaths[updatedPaths.length - 1].push(point);
+      return updatedPaths;
+    });
   };
 
   const switchDrawMode = (mode) => {
@@ -26,12 +34,14 @@ export default function App() {
   };
 
   const clearDrawing = () => {
-    setDrawingPath([]);
+    setDrawMode('');
+    setDrawingPaths([]);
   };
 
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
+      onPanResponderStart: handlePanResponderStart,
       onPanResponderMove: handlePanResponderMove,
       onPanResponderRelease: () => {
         // Finger released, you can perform any necessary actions here
@@ -40,38 +50,15 @@ export default function App() {
   ).current;
 
   const renderDrawing = () => {
-    if (drawMode === 'line') {
-      return renderDrawingLine();
-    } else if (drawMode === 'box') {
-      return renderDrawingBoxes();
-    }
-    return null;
-  };
+    return drawingPaths.map((path, index) => {
+      if (path.length < 2) {
+        return null;
+      }
 
-  const renderDrawingLine = () => {
-    if (drawingPath.length < 2) {
-      return null;
-    }
+      const points = path.map(point => `${point.x},${point.y}`).join(' ');
 
-    const path = drawingPath.map(point => `${point.x},${point.y}`).join(' ');
-
-    return <Polyline points={path} fill="none" stroke="blue" strokeWidth="2" />;
-  };
-
-  const renderDrawingBoxes = () => {
-    return drawingPath.map((point, index) => (
-      <View
-        key={index}
-        style={{
-          position: 'absolute',
-          backgroundColor: 'blue',
-          width: 20,
-          height: 20,
-          left: point.x - 10,
-          top: point.y - 10,
-        }}
-      />
-    ));
+      return <Polyline key={index} points={points} fill="none" stroke="blue" strokeWidth="2" />;
+    });
   };
 
   return (
@@ -83,8 +70,7 @@ export default function App() {
         </Svg>
       </View>
       <View style={styles.buttonContainer}>
-        <Button title="Line" onPress={() => switchDrawMode('line')} />
-        <Button title="Box" onPress={() => switchDrawMode('box')} />
+        <Button title="Line" onPress={() => switchDrawMode('line')} disabled={drawMode === 'line'} />
         <Button title="Reset" onPress={clearDrawing} />
       </View>
     </View>
