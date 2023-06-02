@@ -16,20 +16,15 @@ export default function App() {
   const [drawMode, setDrawMode] = useState('');
 
   const handlePanResponderStart = () => {
-    setDrawingBoxes(prevBoxes => [...prevBoxes, { position: { x: null, y: null }, size: { width: null, height: null } }]);
+    setDrawingBoxes(prevBoxes => [...prevBoxes, []]);
   };
 
   const handlePanResponderMove = (event, gestureState) => {
     const { locationX, locationY } = event.nativeEvent;
+    const box = { x: locationX, y: locationY };
     setDrawingBoxes(prevBoxes => {
       const updatedBoxes = [...prevBoxes];
-      const lastIndex = updatedBoxes.length - 1;
-      const { position, size } = updatedBoxes[lastIndex];
-      const startX = position.x !== null ? position.x : locationX;
-      const startY = position.y !== null ? position.y : locationY;
-      const width = Math.abs(locationX - startX);
-      const height = Math.abs(locationY - startY);
-      updatedBoxes[lastIndex] = { position: { x: startX, y: startY }, size: { width, height } };
+      updatedBoxes[updatedBoxes.length - 1].push(box);
       return updatedBoxes;
     });
   };
@@ -54,29 +49,22 @@ export default function App() {
     })
   ).current;
 
-const renderDrawing = () => {
-  return drawingBoxes.map((box, index) => {
-    const { position, size } = box;
-    if (!position || !size) {
-      return null;
-    }
+  const renderDrawing = () => {
+    return drawingBoxes.map((box, index) => {
+      if (box.length < 2) {
+        return null;
+      }
 
-    const { x, y } = position;
-    const { width, height } = size;
+      const startPoint = box[0];
+      const endPoint = box[box.length - 1];
+      const x = Math.min(startPoint.x, endPoint.x);
+      const y = Math.min(startPoint.y, endPoint.y);
+      const width = Math.abs(startPoint.x - endPoint.x);
+      const height = Math.abs(startPoint.y - endPoint.y);
 
-    if (x === null || y === null) {
-      return null;
-    }
-
-    const startX = Math.min(x, x + width);
-    const startY = Math.min(y, y + height);
-    const boxWidth = Math.abs(width);
-    const boxHeight = Math.abs(height);
-
-    return <Rect key={index} x={startX} y={startY} width={boxWidth} height={boxHeight} fill="none" stroke="blue" strokeWidth="2" />;
-  });
-};
-
+      return <Rect key={index} x={x} y={y} width={width} height={height} fill="none" stroke="blue" strokeWidth="2" />;
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -90,7 +78,6 @@ const renderDrawing = () => {
         <Button title="Box" onPress={() => switchDrawMode('box')} disabled={drawMode === 'box'} />
         <Button title="Reset" onPress={clearDrawing} />
       </View>
-        <Text>{JSON.stringify(drawingBoxes)}</Text>
     </View>
   );
 }
