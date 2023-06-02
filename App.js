@@ -16,6 +16,9 @@ import * as MediaLibrary from 'expo-media-library';
 import * as Permissions from 'expo-permissions';
 import { captureRef } from 'react-native-view-shot';
 
+// Custom Components
+// import DrawingBoxes from './components/DrawingBoxes/DrawingBoxes';
+
 // Enable layout animation on Android
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -72,6 +75,7 @@ const DrawingBoxes = ({ drawingBoxes }) => {
     </Svg>
   );
 };
+
 
 export default function App() {
   const { width, height } = Dimensions.get('window');
@@ -161,6 +165,7 @@ export default function App() {
       <Text>
         height: {height/2}
       </Text>
+      <Text>{drawingBoxes.length}</Text>
       <View
         ref={redBoxRef}
         style={[styles.box, { height: height / 2, width: width / 2 }]}
@@ -179,6 +184,7 @@ export default function App() {
         <Button title="Reset" onPress={clearDrawing} />
         <Button title="Capture Screenshot" onPress={captureScreenshot} />
       </View>
+      <Text>{JSON.stringify(drawingBoxes)}</Text>
     </View>
   );
 }
