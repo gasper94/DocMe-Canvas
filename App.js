@@ -1,5 +1,16 @@
 import React, { useRef, useState } from 'react';
-import { Dimensions, StyleSheet, Text, View, Button, PanResponder, UIManager, Platform, ImageBackground, Alert } from 'react-native';
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  PanResponder,
+  UIManager,
+  Platform,
+  ImageBackground,
+  Alert,
+} from 'react-native';
 import { Svg, Rect } from 'react-native-svg';
 import * as MediaLibrary from 'expo-media-library';
 import * as Permissions from 'expo-permissions';
@@ -32,7 +43,26 @@ const DrawingBoxes = ({ drawingBoxes }) => {
       const boxWidth = Math.abs(width);
       const boxHeight = Math.abs(height);
 
-      return <Rect key={index} x={startX} y={startY} width={boxWidth} height={boxHeight} fill="none" stroke="blue" strokeWidth="2" />;
+      const dimensionsX = startX - 2;
+      const dimensionsY = startY - 10; // Adjust the vertical offset as needed
+
+      return (
+        <React.Fragment key={index}>
+          <Rect
+            x={startX}
+            y={startY}
+            width={boxWidth}
+            height={boxHeight}
+            fill="none"
+            stroke="blue"
+            strokeWidth="2"
+          />
+          {/* <Text>Hello</Text> */}
+          <Text style={[styles.boxDimensions, { left: dimensionsX, top: dimensionsY }]}>
+            {boxWidth.toFixed(0)} x {boxHeight.toFixed(0)}
+          </Text>
+        </React.Fragment>
+      );
     });
   };
 
@@ -126,10 +156,10 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text>
-        width: {`${redBoxRef.current?.offsetWidth}`} {width}
+        width:{width/2}
       </Text>
       <Text>
-        height: {`${redBoxRef.current?.offsetHeight}`} {height}
+        height: {height/2}
       </Text>
       <View
         ref={redBoxRef}
@@ -183,5 +213,10 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  boxDimensions: {
+    position: 'absolute',
+    color: 'blue',
+    fontSize: 8,
   },
 });
