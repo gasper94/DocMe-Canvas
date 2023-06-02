@@ -1,6 +1,9 @@
 import React, { useRef, useState } from 'react';
-import { Dimensions, StyleSheet, Text, View, Button, PanResponder, UIManager, Platform } from 'react-native';
+import { Dimensions, StyleSheet, Text, View, Button, PanResponder, UIManager, Platform, ImageBackground, Alert } from 'react-native';
 import { Svg, Rect } from 'react-native-svg';
+import * as MediaLibrary from 'expo-media-library';
+import * as Permissions from 'expo-permissions';
+import { captureRef } from 'react-native-view-shot';
 
 // Enable layout animation on Android
 if (Platform.OS === 'android') {
@@ -41,7 +44,7 @@ const DrawingBoxes = ({ drawingBoxes }) => {
 };
 
 export default function App() {
-  const { width, height } = Dimensions.get('window'); 
+  const { width, height } = Dimensions.get('window');
 
   const redBoxRef = useRef(null);
 
@@ -53,32 +56,31 @@ export default function App() {
   };
 
   const handlePanResponderMove = (event, gestureState) => {
-  const { locationX, locationY } = event.nativeEvent;
-  const redBoxWidth = width / 2;
-  const redBoxHeight = height / 2;
+    const { locationX, locationY } = event.nativeEvent;
+    const redBoxWidth = width / 2;
+    const redBoxHeight = height / 2;
 
-  setDrawingBoxes(prevBoxes => {
-    const updatedBoxes = [...prevBoxes];
-    const lastIndex = updatedBoxes.length - 1;
-    const { position, size } = updatedBoxes[lastIndex];
-    const startX = position.x !== null ? position.x : locationX;
-    const startY = position.y !== null ? position.y : locationY;
-    let width = Math.abs(locationX - startX);
-    let height = Math.abs(locationY - startY);
+    setDrawingBoxes(prevBoxes => {
+      const updatedBoxes = [...prevBoxes];
+      const lastIndex = updatedBoxes.length - 1;
+      const { position, size } = updatedBoxes[lastIndex];
+      const startX = position.x !== null ? position.x : locationX;
+      const startY = position.y !== null ? position.y : locationY;
+      let width = Math.abs(locationX - startX);
+      let height = Math.abs(locationY - startY);
 
-    // Adjust width and height if they exceed the boundaries
-    if (startX + width > redBoxWidth) {
-      width = redBoxWidth - startX;
-    }
-    if (startY + height > redBoxHeight) {
-      height = redBoxHeight - startY;
-    }
+      // Adjust width and height if they exceed the boundaries
+      if (startX + width > redBoxWidth) {
+        width = redBoxWidth - startX;
+      }
+      if (startY + height > redBoxHeight) {
+        height = redBoxHeight - startY;
+      }
 
-    updatedBoxes[lastIndex] = { position: { x: startX, y: startY }, size: { width, height } };
-    return updatedBoxes;
-  });
+      updatedBoxes[lastIndex] = { position: { x: startX, y: startY }, size: { width, height } };
+      return updatedBoxes;
+    });
   };
-
 
   const switchDrawMode = (mode) => {
     setDrawMode(mode);
@@ -100,6 +102,27 @@ export default function App() {
     })
   ).current;
 
+  const captureScreenshot = async () => {
+    try {
+      const uri = await captureRef(redBoxRef, {
+        format: 'png',
+        quality: 1,
+      });
+
+      const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      if (status !== 'granted') {
+        Alert.alert('Permission denied', 'Unable to save screenshot to camera roll.');
+        return;
+      }
+
+      await MediaLibrary.saveToLibraryAsync(uri);
+      Alert.alert('Screenshot saved', 'Screenshot saved to camera roll successfully.');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to capture screenshot.');
+      console.error('Failed to capture screenshot:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text>
@@ -108,15 +131,24 @@ export default function App() {
       <Text>
         height: {`${redBoxRef.current?.offsetHeight}`} {height}
       </Text>
-      <View ref={redBoxRef} style={[styles.box, {height: height / 2, width: width / 2}]} {...panResponder.panHandlers}>
-        <Text>Image should be here</Text>
+      <View
+        ref={redBoxRef}
+        style={[styles.box, { height: height / 2, width: width / 2 }]}
+        {...panResponder.panHandlers}
+      >
+        <ImageBackground
+          source={require('./assets/icon.png')}
+          style={styles.backgroundImage}
+        >
+          <Text>Image should be here</Text>
+        </ImageBackground>
         <DrawingBoxes drawingBoxes={drawingBoxes} />
       </View>
       <View style={styles.buttonContainer}>
         <Button title="Box" onPress={() => switchDrawMode('box')} disabled={drawMode === 'box'} />
         <Button title="Reset" onPress={clearDrawing} />
+        <Button title="Capture Screenshot" onPress={captureScreenshot} />
       </View>
-      {/* <Text>{JSON.stringify(drawingBoxes)}</Text> */}
     </View>
   );
 }
@@ -125,7 +157,6 @@ const styles = StyleSheet.create({
   box: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'red',
     alignSelf: 'center',
   },
   container: {
@@ -145,5 +176,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginTop: 20,
+  },
+  backgroundImage: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
