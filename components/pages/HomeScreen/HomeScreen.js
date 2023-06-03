@@ -22,19 +22,21 @@ const HomeScreen = ({ navigation }) => {
             style={{ borderWidth: 1, padding: 10, marginBottom: 20 }}
         />
         <Button title="Save Name" onPress={saveName} />
-        {isNameSaved && (
-            <Button
-            title="Go to Details"
-            onPress={() => navigation.navigate('Details')}
-            />
-        )}
         <Button
-            title="Food In Take"
+            title="Uploading Image"
+            onPress={() => navigation.navigate('Details')}
+        />
+        <Button
+            title="Body Svg"
             onPress={() => navigation.navigate('FoodInTake')}
         />
         <Button
-            title="Profile"
+            title="Input Multi-step form Profile"
             onPress={() => navigation.navigate('Profile')}
+        />
+        <Button
+            title="HashMap"
+            onPress={() => navigation.navigate('HashMap')}
         />
     </View>
   );
