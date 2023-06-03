@@ -15,19 +15,27 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <TextInput
-        placeholder="Enter your name"
-        value={name}
-        onChangeText={setName}
-        style={{ borderWidth: 1, padding: 10, marginBottom: 20 }}
-      />
-      <Button title="Save Name" onPress={saveName} />
-      {isNameSaved && (
-        <Button
-          title="Go to Details"
-          onPress={() => navigation.navigate('Details')}
+        <TextInput
+            placeholder="Enter your name"
+            value={name}
+            onChangeText={setName}
+            style={{ borderWidth: 1, padding: 10, marginBottom: 20 }}
         />
-      )}
+        <Button title="Save Name" onPress={saveName} />
+        {isNameSaved && (
+            <Button
+            title="Go to Details"
+            onPress={() => navigation.navigate('Details')}
+            />
+        )}
+        <Button
+            title="Food In Take"
+            onPress={() => navigation.navigate('FoodInTake')}
+        />
+        <Button
+            title="Profile"
+            onPress={() => navigation.navigate('Profile')}
+        />
     </View>
   );
 };
