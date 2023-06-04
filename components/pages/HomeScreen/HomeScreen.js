@@ -38,6 +38,14 @@ const HomeScreen = ({ navigation }) => {
             title="HashMap"
             onPress={() => navigation.navigate('HashMap')}
         />
+         <Button
+            title="History"
+            onPress={() => navigation.navigate('History')}
+        />
+        <Button
+            title="Basic"
+            onPress={() => navigation.navigate('Basic')}
+        />
     </View>
   );
 };

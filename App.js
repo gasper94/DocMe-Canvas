@@ -10,6 +10,8 @@ import DetailsScreen from './components/pages/DetailsScreen/DetailsScreen';
 import FoodInTake from './components/pages/FoodInTake/FoodInTake';
 import Profile from './components/pages/Profile/Profile';
 import ActivityMap from './components/pages/HashMap/HashMap';
+import HistoricDataList from './components/pages/HistoricDataList.js/HistoricDataList';
+import Basic from './components/pages/HistoricDataList.js/Basic';
 
 // Stack Navigator
 const Stack = createStackNavigator();
@@ -59,6 +61,8 @@ const App = () => (
             data: contributionDataWithDateId
           }}
         />
+         <Stack.Screen name="History" component={HistoricDataList} />
+          <Stack.Screen name="Basic" component={Basic} />
       </Stack.Navigator>
     </NavigationContainer>
   </NameProvider>
