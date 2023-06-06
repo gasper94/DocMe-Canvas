@@ -1,15 +1,14 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { View, TextInput, Button, Keyboard } from 'react-native';
-import { NameContext } from '../../../NameContext';
+import { connect } from 'react-redux';
+import { setName } from '../../../Redux/reducers/userReducer'; // Import the action creator to set the name
 
-const HomeScreen = ({ navigation }) => {
-  const { name, setName } = useContext(NameContext);
-  const [isNameSaved, setIsNameSaved] = React.useState(false);
-
+const HomeScreen = ({ name, setName, navigation }) => {
   const saveName = () => {
     if (name.trim() !== '') {
       Keyboard.dismiss(); // Close the keyboard
-      setIsNameSaved(true);
+      // Dispatch the action to set the name in Redux state
+      setName(name);
     }
   };
 
@@ -18,9 +17,10 @@ const HomeScreen = ({ navigation }) => {
         <TextInput
             placeholder="Enter your name"
             value={name}
-            onChangeText={setName}
+            onChangeText={setName} // Update Redux state when the text changes
             style={{ borderWidth: 1, padding: 10, marginBottom: 20 }}
         />
+
         <Button title="Save Name" onPress={saveName} />
         <Button
             title="Uploading Image"
@@ -50,4 +50,16 @@ const HomeScreen = ({ navigation }) => {
   );
 };
 
-export default HomeScreen;
+const mapStateToProps = (state) => {
+  return {
+    name: state.name,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    setName: (name) => dispatch(setName(name)), // Dispatch the action creator
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);

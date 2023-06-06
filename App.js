@@ -1,4 +1,6 @@
 // App.js
+import { Provider } from 'react-redux';
+import store from './Redux/store';
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
@@ -47,25 +49,25 @@ const Stack = createStackNavigator();
   });
 
 const App = () => (
-  <NameProvider>
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Details" component={DetailsScreen} />
-        <Stack.Screen name="FoodInTake" component={FoodInTake} />
-        <Stack.Screen name="Profile" component={Profile} />
-        <Stack.Screen
-          name="HashMap"
-          component={ActivityMap}
-          initialParams={{
-            data: contributionDataWithDateId
-          }}
-        />
-         <Stack.Screen name="History" component={HistoricDataList} />
-          <Stack.Screen name="Basic" component={Basic} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  </NameProvider>
+  <Provider store={store}>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen name="Details" component={DetailsScreen} />
+            <Stack.Screen name="FoodInTake" component={FoodInTake} />
+            <Stack.Screen name="Profile" component={Profile} />
+            <Stack.Screen
+              name="HashMap"
+              component={ActivityMap}
+              initialParams={{
+                data: contributionDataWithDateId
+              }}
+            />
+            <Stack.Screen name="History" component={HistoricDataList} />
+              <Stack.Screen name="Basic" component={Basic} />
+          </Stack.Navigator>
+        </NavigationContainer>
+  </Provider>
 );
 
 export default App;

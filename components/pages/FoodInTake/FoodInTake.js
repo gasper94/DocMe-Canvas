@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Button, Text, StyleSheet } from 'react-native';
 import Svg, { Path, Circle, Rect } from 'react-native-svg';
+import { connect } from 'react-redux';
 
 const BodySvg = () => {
   return (
@@ -22,9 +23,7 @@ const BodySvg = () => {
   );
 };
 
-const FoodInTake = () => {
-  const name = "John"; // Replace with the actual name
-
+const FoodInTake = ({ name }) => {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Text>Hello, {name}!</Text>
@@ -42,10 +41,16 @@ const FoodInTake = () => {
   );
 };
 
+const mapStateToProps = (state) => {
+  return {
+    name: state.user.name,
+  };
+};
+
 const styles = StyleSheet.create({
   bodySvg: {
     marginBottom: 20,
   },
 });
 
-export default FoodInTake;
+export default connect(mapStateToProps)(FoodInTake);
