@@ -46,6 +46,10 @@ const HomeScreen = ({ name, setName, navigation }) => {
             title="Basic"
             onPress={() => navigation.navigate('Basic')}
         />
+        <Button
+            title="Notifications"
+            onPress={() => navigation.navigate('Notifications')}
+        />
     </View>
   );
 };

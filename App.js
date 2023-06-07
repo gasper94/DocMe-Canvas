@@ -14,6 +14,7 @@ import Profile from './components/pages/Profile/Profile';
 import ActivityMap from './components/pages/HashMap/HashMap';
 import HistoricDataList from './components/pages/HistoricDataList.js/HistoricDataList';
 import Basic from './components/pages/HistoricDataList.js/Basic';
+import Notifications from './components/Notifications';
 
 // Stack Navigator
 const Stack = createStackNavigator();
@@ -64,7 +65,8 @@ const App = () => (
               }}
             />
             <Stack.Screen name="History" component={HistoricDataList} />
-              <Stack.Screen name="Basic" component={Basic} />
+            <Stack.Screen name="Basic" component={Basic} />
+            <Stack.Screen name="Notifications" component={Notifications} />
           </Stack.Navigator>
         </NavigationContainer>
   </Provider>
